@@ -1,0 +1,18 @@
+#!/usr/sh
+
+## tool paths
+CUTADAPT=path-to/cutadapt
+VSEARCH=path-to/vsearch
+export RDPHOME=path-to/RDPTools #the directory where classifier.jar lives
+export SCRIPTS=path-to/scriptfolder
+export MAKEBLASTDB=path-to/makeblastdb
+export BLASTN=path-to/blastn
+
+## database paths
+export RDP_FULL_BLAST=path-to/rdp11_5_blastDB
+export RDP_FULL_SEQ=path-to/DB/rdp11_5.fasta
+export RDP_SEQMATCH=path-to/seqmatch_DB
+
+## primers and other settings
+PRIMERS=path-to/primers_16S_V1-9_anchored.fasta #primer file formatted paired-end primer trimming
+export READLEN=130 #read length its primer is removed (before paired end merging)
