@@ -1,0 +1,17 @@
+#!/usr/sh
+
+## tool paths
+CUTADAPT=/usr/local/bin/cutadapt
+VSEARCH=/home/benli/tools/vsearch-2.13.0/bin//vsearch
+export RDPHOME=/home/benli/RDPTools #the directory where classifier.jar lives
+export SCRIPTS=/seq/benli/SMDev/dada2/SNAP/release_dev
+export MAKEBLASTDB=/usr/local/bin/makeblastdb
+export BLASTN=/usr/local/bin/blastn
+
+## database paths
+export RDP_FULL_BLAST=/seq/benli/SMTest/DB/rdp11_5
+export RDP_FULL_SEQ=/seq/benli/SMTest/DB/rdp11_5.fasta
+
+## primers and other settings
+PRIMERS=/seq/benli/SMTest/DB/primers_16S_V1-9_anchored.fasta #primer file formatted paired-end primer trimming
+export READLEN=130 #read length its primer is removed (before paired end merging)

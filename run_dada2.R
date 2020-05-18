@@ -19,7 +19,6 @@ log <- args[4] #the log file to append process stats
 fnFs <- sort(list.files(path, pattern="_R1_001.fastq.gz", full.names = TRUE))
 fnRs <- sort(list.files(path, pattern="_R2_001.fastq.gz", full.names = TRUE))
 
-#sample.names <- sapply(strsplit(basename(fnFs), "_"), `[`, 1)
 sample.names <- sapply(strsplit(basename(fnFs), "_L001"), `[`, 1)
 
 filtFs <- file.path(path, "filtered", paste0(sample.names, "_F_filt.fastq.gz"))
@@ -36,12 +35,7 @@ errR <- learnErrors(filtRs, multithread=TRUE)
 dadaFs <- dada(filtFs, err=errF, multithread=TRUE, pool=TRUE)
 dadaRs <- dada(filtRs, err=errR, multithread=TRUE, pool=TRUE)
 
-#inspcting the returned dada-class object
-#dadaFs[[1]]
-#dadaRs[[1]]
-
 mergers <- mergePairs(dadaFs, filtFs, dadaRs, filtRs, verbose=TRUE, justConcatenate=TRUE)
-#abundance <- mergers[[1]][2]
 
 #get asv sequence and count table and write to a tab-delimited file
 seqtab <- makeSequenceTable(mergers)

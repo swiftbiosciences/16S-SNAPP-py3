@@ -48,23 +48,6 @@ class Name_proxy:
         name = ID + '_' + str('0'*(3-len(str(number))) + str(number))
         return name
 
-## extract and save consensus sequences as a fasta file for each sample
-def make_proxy_file(sample_id, refset, WD):
-    import os
-    outname = os.path.join(WD, sample_id + '_consensus.fasta')
-    with open(outname, 'w') as out:
-        for ref_id in refset.keys():
-            seq = refset[ref_id].consensus
-            out.write('>' + ref_id + '\n' + seq + '\n')
-    return 1
-
-## use classification results to correct the strandness of the PE reads
-def correct_strand(rc_list, pe_dict):
-    for pe_id in rc_list:
-            seq = pe_dict[pe_id]
-            pe_dict[pe_id] = rev_complement(seq)
-    return pe_dict
-
 ## classify consensus sequences in batch, fetch, and add assignments to Refseq objects
 def classify_proxy(sample_id, RDPHOME, WD):
     import subprocess

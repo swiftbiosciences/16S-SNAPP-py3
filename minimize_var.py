@@ -20,8 +20,7 @@ def minimize_var(df, Sums):
     print 'ASV read', R, columnNames[R], Sum, 'read count to be allocated to:'
     print rowNames
     print 'Pre-minimization'
-    #print df.transpose().shape
-    print df.transpose()
+    print df.transpose().shape
 
     #the fractions of total read count to each reference
     frac = Array.sum(axis = 1)/Array.sum()
@@ -55,16 +54,19 @@ def minimize_var(df, Sums):
     preCons = preCons[R].strip('+') + '- %s'%Sum
     preConAll = "cons = {'type':'eq','fun':con%s}"%R
 
-    exec("""%s"""%preFun)
-    exec("""%s"""%preCons)
-    exec("""%s"""%preBnds)
-    exec("""%s"""%preConAll)
-    exec("""%s"""%preX0)
-    exec("""sol = minimize(fun, x0, method='SLSQP', bounds=bnds, constraints=cons)""")
-    #exec("""sol = basinhopping(fun, x0, bounds=bnds, constraints=cons)""")
-    print sol
-    Array[:, R] = sol.x #insert the minimized values into the column to update the array
-    #Sums[R] = -1 #change this read count status to non-multi-mapped since the count has been allocated
+    try:
+        exec("""%s"""%preFun)
+        exec("""%s"""%preCons)
+        exec("""%s"""%preBnds)
+        exec("""%s"""%preConAll)
+        exec("""%s"""%preX0)
+        exec("""sol = minimize(fun, x0, method='SLSQP', bounds=bnds, constraints=cons)""")
+        print sol
+        Array[:, R] = sol.x #insert the minimized values into the column to update the array
+    except ValueError:# rare cases of overflow
+        preX0 = [float(i) for i in preX0.split('[')[1].split(']')[0].split(',')] #obtain the values from string
+        Array[:, R] = preX0
+
     print 'Post-minimization'
     Array = np.around(Array, 2)
     df = pd.DataFrame(Array, index=rowNames, columns = columnNames)

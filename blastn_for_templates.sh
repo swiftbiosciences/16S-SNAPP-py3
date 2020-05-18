@@ -28,8 +28,8 @@ $BLASTN \
     -query asv_uniq.fasta \
     -out blastn_1.txt \
     -outfmt "6 std qlen slen" \
-    -perc_identity 99 \
-    -qcov_hsp_perc 0.99
+    -perc_identity 97 \
+    -qcov_hsp_perc 0.97
 
 echo "    Ends: $(date)">>$log
 end=$(date +%s.%N)
@@ -39,30 +39,38 @@ echo "    First Runtime: $runtime sec" >> $log
 #obtain top hits of each query sequence from all samples
 echo -e "\nFiltering the first blast...\n    Starts: $(date)">>$log
 start=$(date +%s.%N)
-
 cat blastn_1.txt \
     | awk -F '\t' '{if($3 >= 99 && ($4/$13) > 0.99) print $2}' \
     | sort -u \
     > reflist.txt
-echo "    Ends: $(date)">>$log
-end=$(date +%s.%N)
-runtime=$(python -c "print(${end} - ${start})")
-echo "    Parsing first blast Runtime: $runtime sec" >> $log
-
-#Extract hit sequences from the non-redundant (100%) reference set
 template_count=$(< reflist.txt wc -l)
-start=$(date +%s.%N)
-echo -e "\nExtracting ${template_count} preliminary candidate template sequences\n    Starts: $(date)">>$log
+
+cut -f2 blastn_1.txt |sort -u > exp_reflist.txt
+java -jar ${RDPHOME}/ReadSeq.jar \
+    select-seqs exp_reflist.txt  \
+    exp_refset.fasta fasta Y ${RDP_FULL_SEQ}
+
 java -jar ${RDPHOME}/ReadSeq.jar \
     select-seqs reflist.txt \
-    refset.fasta fasta Y ${RDP_FULL_SEQ}
-
+    refset.fasta fasta Y exp_refset.fasta
 echo "    Ends: $(date)">>$log
 end=$(date +%s.%N)
 runtime=$(python -c "print(${end} - ${start})")
-echo "    Extraction of preliminary template sequences Runtime: $runtime sec" >> $log
+echo -e "\nExtracting ${template_count} preliminary candidate template sequences\n    Starts: $(date)">>$log
+echo "    Completed parsing first blast. Runtime: $runtime sec" >> $log
 
-#run blast using preliminary candidate templetes against asv DB in order to obtain a
+# Prepare SeqMatch DB
+echo -e "\nFormatting SeqMatch DB ...\n    Starts: $(date)">>$log
+start=$(date +%s.%N)
+[  -d seqmatch ] && echo "Directory seqmatch does exist, please delete..." && exit
+mkdir seqmatch
+java -jar ${RDPHOME}/SequenceMatch.jar train exp_refset.fasta seqmatch/train
+echo "    Ends: $(date)">>$log
+end=$(date +%s.%N)
+runtime=$(python -c "print(${end} - ${start})")
+echo "    Completed training SeqMatch. Runtime: $runtime sec" >> $log
+
+# Run blast using preliminary candidate templetes against asv DB in order to obtain a
 #more complete set of template-asv matches
 echo -e "\nRunning second blast...\n    Starts: $(date)">>$log
 start=$(date +%s.%N)
@@ -145,7 +153,7 @@ java -jar ${RDPHOME}/SequenceMatch.jar \
     -k 1 \
     -s 0.9 \
     -o asv_PE_K1.txt \
-    ${RDP_SEQMATCH}/ \
+    seqmatch/ \
     asv_PE.fasta
 echo "    Ends: $(date)">>$log
 end=$(date +%s.%N)

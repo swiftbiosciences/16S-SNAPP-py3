@@ -74,6 +74,7 @@ for R1 in ${INPUTDIR}/*_R1_*fastq.gz; do
     echo "$prefix trimmed: ${trimPCT}%" >> $log
 
 done
+rm *NotTrimmed.fastq
 echo "    Ends: $(date)">>$log
 end=$(date +%s.%N)
 runtime=$(python -c "print(${end} - ${start})")
@@ -126,8 +127,7 @@ echo "    Dereplication Runtime: $runtime sec" >> $log
 ${SCRIPTS}/blastn_for_templates.sh
 
 ##Determine the candiate reference sequenes, associate reads, allocate read counts,
-##calculate read coverage, and classify each consensus sequence representing
-##each associated amplicon set.
+##and classify each consensus sequence representing each associated amplicon set.
 echo -e "\nConverging candidate template sequences...\n    Starts: $(date)">>$log
 start=$(date +%s.%N)
 ${SCRIPTS}/converge.py \

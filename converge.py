@@ -48,9 +48,8 @@ def assign_read_counts(sampleID, readCounts, hits_info):
     ##6. slice a subset (rows) where each read is mapped to more than one reference
     readIDs_tbd = DF.loc[(DF.astype(bool).sum(axis=1) > 1) , :].index
 
-    ##7. Set all multi-mapped ref-read count to 0. They will be filled later with
+    ##7. Set all multi-mapped ref-read count to small number 0.001 They will be filled later with
     #the optimized values through minimization
-    #DF_assigned.loc[(DF_assigned.astype(bool).sum(axis=1) > 1) , :] = 0
     DF_assigned.loc[(DF_assigned.astype(bool).sum(axis=1) > 1) , :] = 0.001
     print 'There are:', len(readIDs_tbd), 'multi-mapped asv representatives'
 
@@ -181,8 +180,10 @@ def converge(sample_id): #converge each sample calculating all required attribut
         logfile.write('    Percentage of mapped unique ASVs in ' + sample_id + \
                       ': ' + str(round(mapped_ASV_count/float(sample_read_count)*100, 2)) + '\n')
 
-    load_consensus(refset, pe_seq_dict, WD)
-    make_proxy_file(sample_id, refset, WD) #make the save proxies as a fasta file
+    consensus_seqs = load_consensus(refset, pe_seq_dict, WD)
+    seq_name = os.path.join(WD, sample_id + '_consensus.fasta')
+    with open(seq_name, 'w') as conseq: #write consensus seqs to a file
+        conseq.write(consensus_seqs)
     classify_proxy(sample_id, RDPHOME, WD) #classify consensus sequences
     refset = add_lineages(sample_id, pe_lineage_dict, refset)#load the best assignment from asv_PEs and the proxies
     get_len_stats(sample_id, refset) #alignment length distributions of mapped reads
@@ -223,10 +224,6 @@ rDF = pd.read_csv(count_table, sep = ',', header=0, index_col = 0)
 
 #Fetch tax assignments of all asv PEs prior to converging
 pe_lineage_dict = get_lineages(read_cls, 0.7)
-
-#reverse-complement PEs
-rc_list = [line.strip() for line in open('reverse_complement_IDs.txt', 'r').readlines()]
-#pe_seq_dict = correct_strand(rc_list, pe_seq_dict)
 
 #sequence match results
 K1_dict = pd.read_pickle('asv_PE_K1.pkl')
@@ -276,9 +273,9 @@ elapsed = timeit.default_timer() - converge_start
 print 'Total converge.py time: ', elapsed
 
 """
-#Multi-processing by process pooling
+#Multi-processing by process pooling. Use caution when apply this option
 all_completed = [] #to collect abundance for each sample when it's completed
-with concurrent.futures.ProcessPoolExecutor() as executor:
+with concurrent.futures.ProcessPoolExecutor(max_workers=4) as executor:
     results = [executor.submit(converge, sample) for sample in rDF.columns]
     for f in concurrent.futures.as_completed(results):
         all_completed.append(f.result())

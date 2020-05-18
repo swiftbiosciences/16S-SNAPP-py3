@@ -1,31 +1,34 @@
-﻿SNAP APP is an analysis workflow to be run on Linux/Mac command line
+﻿16S SNAP-APP is an analysis workflow to be run on Linux/Mac command line
 interface (CLI) for 16S amplicon sequences from Swift 16S panel. It
 generates taxonomic composition tables at and above genus ranks from multiple
 demultiplexed fastq files.
 
-SNAP APP's approach is to associate sequence reads derived from multiple
-amplicon regions to their most probable sequences of origin, the assumed
-templates. This is done through database search (blastn) and intersection of
-aligned reads, read count allocation, and classification of consensus sequences.
-It offers higher sensitivity compared to tools designed for the common read-level
-analysis used for single 16S amplicon data.
+16S SNAP-APP's approach is to associate sequence reads derived from multiple
+amplicon regions to their most probable sequences of origin, i.e. the assumed
+templates. This is done through database search (blastn) for high identity
+matches among reference sequences followd by intersecting aligned reads on the
+matching references, read count allocation for multi-mapped reads, and
+classification of consensus sequences. It offers higher sensitivity for 16S
+multiple-amplicon data compared to tools designed for single 16S amplicon data.
 
 Setup:
    1. Install and setup the following software:
-      Java 1.8.0_131 or later,
-      VSEARCH (https://github.com/torognes/vsearch),
-      RDPTools (github.com/rdpstaff/RDPTools),
+      R (https://www.r-project.org/),
+      Java ≥1.8.0_131,
+      Python 2.7 (with Numpy ≥1.16.2, Pandas ≥0.24.2, Scipy ≥1.2.1),
+      DADA2 (https://benjjneb.github.io/dada2/),
       BLAST (ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/),
-      Python 2.7,
-      Numpy 1.16.2 or later,
-      Pandas 0.24.2 or later,
-      Scipy 1.2.1 or later
-   2. Unzip the package file to obtain this file, config.txt, and two folders:
-      “DB” and ”scripts”.
-   3. Edit “config.txt” to enter absolute paths to each tool, primer and
-      database files, and to ”SNAP-APP” folder. Data processing parameters,
-      e.g. expected single read length after primer is trimmed and classification
-      confidence cutoff, should be adjusted when needed.
+      RDPTools (github.com/rdpstaff/RDPTools),
+      Cutadapt (https://cutadapt.readthedocs.io/en/stable/),
+      VSEARCH (https://github.com/torognes/vsearch),
+      MAFFT (https://mafft.cbrc.jp/alignment/software/,
+      FASTTREE (http://www.microbesonline.org/fasttree/)
+   3. Create a folder , e.g. 'DB', and download to it the reference data files
+      from (https://ws.onehub.com/files/ciwzfsrk).
+   4. Clone this repository (git clone https://github.com/swiftbiosciences/snapp.git)
+   5. Edit “config.txt” to enter absolute paths to tools, 'DB' and primer file, 
+      and the expected single read length after primer is trimmed
+
 
 Command to run: snapp.sh config.txt inputdir workdir
    Input: gzipped post-demultiplexing sequence fastq files each (pair)
@@ -45,7 +48,7 @@ Limitations:
    features and classified directly.
 2. The resolution of taxonomic assignments depends on the classifier, mainly its
    taxonomic coverage of the samples, and the sequencing depth. The current
-   version of SNAP APP uses RDP Classifier, but is potentially compatible with 
+   version of 16S SNAP-APP uses RDP Classifier, but is potentially compatible with 
    other k-mer's based classifier.
 3. The phylogenetic tree is built from the sequence alignment of the assumed
    template sequences to approximate the phylogeny of multiple amplicons that

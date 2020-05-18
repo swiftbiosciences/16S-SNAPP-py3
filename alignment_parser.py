@@ -18,7 +18,7 @@ def remove_non_template_positions(template_base_list, read_base_list):
     return read_base_list_mp
 
 #read and convert each pair-wise alignments of all reads to the template
-def get_align_array(filename):
+def get_align_array_bk(filename):
     align_list = []
     read_ids = []
     with open(filename, 'r') as infile:
@@ -35,6 +35,23 @@ def get_align_array(filename):
                 align_list.append(read_align)
             except IndexError:
                 break
+    return align_list, read_ids
+
+def get_align_array(alignment_lines):
+    align_list = []
+    read_ids = []
+    i = 2
+    line_num =  len(alignment_lines)
+    while 1:
+        read_id = alignment_lines[1].split('\t')[0]
+        read_ids.append(read_id)
+        read_align = list(alignment_lines[i + 1][1:])
+        template_align = list(alignment_lines[i + 2][1:])
+        read_align = remove_non_template_positions(template_align, read_align)
+        align_list.append(read_align)
+        i += 3
+        if i + 3 > line_num:
+            break
     return align_list, read_ids
 
 #return seq_base_df

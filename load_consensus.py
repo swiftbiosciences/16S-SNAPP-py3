@@ -4,6 +4,7 @@
 
 import os
 import string
+import concurrent.futures
 import alignment_parser
 
 def align_seqs(refseq, pe_seq_dict, WD):
@@ -35,10 +36,10 @@ def align_seqs(refseq, pe_seq_dict, WD):
     aligned = os.path.join(WD, template_id + '_rdpaligned.txt')
 
     #Run alignment tool align each read to the template in glocal mode
-    os.system('java -jar ~/RDPTools/AlignmentTools.jar pairwise-knn \
-               -k 1 -o ALIGNED -p 5 READS TEMPLATE'.replace('ALIGNED', \
-               aligned).replace('READS', read_filename).replace('TEMPLATE', \
-               template_filename))
+    #collect alignment from stdout
+    aligned = os.popen('java -jar ~/RDPTools/AlignmentTools.jar pairwise-knn \
+               -k 1 READS TEMPLATE'.replace('READS', read_filename).\
+               replace('TEMPLATE', template_filename)).readlines()
 
     return (aligned, read_count_list)
 
@@ -77,11 +78,21 @@ def get_consensus(rdp_k1_alignment, count_list):
             if not region == ''], 'N'*7)
     return consensus
 
+def consensus_loader(refseq, pe_seq_dict, WD):
+    alignment, count_series = align_seqs(refseq, pe_seq_dict, WD)
+    consensus = get_consensus(alignment, count_series)
+    seq = '>' + refseq.ID + '\n' + consensus.strip().strip('N')
+    #refseq.consensus = consensus #load consensus sequences
+    template_id = refseq.ID
+    tmp_file_prefix = os.path.join(WD, template_id)
+    os.system('rm %s*'%tmp_file_prefix) #remove the temperoray files
+    return seq
+
 def load_consensus(refset, pe_seq_dict, WD):
-    for refseq in refset.values():
-        alignment, count_series = align_seqs(refseq, pe_seq_dict, WD)
-        consensus = get_consensus(alignment, count_series)
-        refseq.consensus = consensus #load consensus sequences
-        template_id = refseq.ID
-        tmp_file_prefix = os.path.join(WD, template_id)
-        os.system('rm %s*'%tmp_file_prefix) #remove the temperoray files
+    all_consensus = []
+    with concurrent.futures.ProcessPoolExecutor(max_workers=4) as executor:
+        results = [executor.submit(consensus_loader, refseq, pe_seq_dict, WD) \
+                   for refseq in refset.values()]
+        for f in concurrent.futures.as_completed(results):
+            all_consensus.append(f.result())
+    return string.join(all_consensus, '\n')
