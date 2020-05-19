@@ -23,8 +23,8 @@ Setup:
       VSEARCH (https://github.com/torognes/vsearch),
       MAFFT (https://mafft.cbrc.jp/alignment/software/,
       FASTTREE (http://www.microbesonline.org/fasttree/)
-   3. Create a folder , e.g. 'DB', and download to it the reference data files
-      from (https://ws.onehub.com/files/ciwzfsrk).
+   3. Create a folder , e.g. 'DB', and download to it the reference and primer 
+      files from (https://ws.onehub.com/files/ciwzfsrk).
    4. Clone this repository (git clone https://github.com/swiftbiosciences/snapp.git)
    5. Edit “config.txt” to enter absolute paths to tools, 'DB' and primer file, 
       and the expected single read length after primer is trimmed
