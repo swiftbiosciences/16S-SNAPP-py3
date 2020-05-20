@@ -1,7 +1,7 @@
 ﻿16S SNAPP is an analysis workflow to be run on Linux/Mac command line
-interface (CLI) for 16S amplicon sequences from Swift 16S panel. It
-generates taxonomic composition tables at and above genus ranks from multiple
-demultiplexed fastq files.
+interface (CLI) for 16S multi-V region amplicon sequences from Swift's 16S SNAP
+panel. It generates taxonomic composition tables at and above genus ranks from
+multiple demultiplexed fastq files.
 
 16S SNAPP's approach is to associate sequence reads derived from multiple
 amplicon regions to their most probable sequences of origin, i.e. the assumed
@@ -31,13 +31,16 @@ Setup:
 
 
 Command to run: snapp.sh config.txt inputdir workdir
+
    Input: gzipped post-demultiplexing sequence fastq files each (pair)
           representing a single sample and each carrying a Swift 16S primers
           on its 5’ end.
-   Output: (“RESDIR” folder under the directory where the command is run):
-          lineage-table.tsv
-          feature-table.tsv
-          taxonomy-table.tsv
+
+  Output: (“RESDIR” folder under the directory where the command is run):
+
+          lineage-table.tsv,
+          feature-table.tsv,
+          taxonomy-table.tsv,
           templates_mafft.tree
 
 Limitations:
