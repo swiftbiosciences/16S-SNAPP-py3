@@ -30,7 +30,7 @@ that they are valid under applicable law.  If additional permissions apply only 
 the Program, that part may be used separately under those permissions, but the entire Program remains
 governed by this License without regard to the additional permissions.
 
-      1.2    An interactive user interface displays "displaysAppropriate Legal Notices" to the extent that
+      1.2    An interactive user interface displays "Appropriate Legal Notices" to the extent that
 it includes a convenient and prominently visible feature that (1) displays an appropriate copyright
 notice, and (2) tells the user that there is no warranty for the work (except to the extent that
 warranties are provided), that licensees may convey the work under this License, and how to view
@@ -59,11 +59,11 @@ The Corresponding Source for a work in Source Code form is that same work.
 window system, and so on) of the specific operating system (if any) on which the executable work
 runs, or a compiler used to produce the work, or an Object Code interpreter used to run it.
 
-      1.7    "Modify" means to copy from or adapt all or partsrt of the work in a fashion requiring
+      1.7    "Modify" means to copy from or adapt all or parts of the work in a fashion requiring
 copyright permission, other than the making of an exact copy.  The resulting work is called a
 "Modified Version" of the earlier work or a work "based on" the earlier work. 
 
-      1.8    The “Programrogram" refers to Swift’s 16S SNAPP software for analyzing Swift’s 16S
+      1.8    The “Program" refers to Swift’s 16S SNAPP software for analyzing Swift’s 16S
 data generated with Swift Normalase® Amplicon Panels (SNAP) and Swift Amplicon® Panels.
 
       1.9    To "propagate" a work means to do anything with it that, without permission, would
@@ -77,7 +77,7 @@ modifications to it.  "Object Code" means any non-source form of a work.
 
       1.11   The “Swift GitHub Repository” is located at https://github.com/swiftbiosciences/16S-SNAPP.
 
-      1.12   The "System Libraries" of an executable work include anything, otherr than the
+      1.12   The "System Libraries" of an executable work include anything, other than the
 work as a whole, that (a) is included in the normal form of packaging a Major Component, but
 which is not part of that Major Component, and (b) serves only to enable use of the work with that
 Major Component, or to implement a standard interface for which an implementation is available
