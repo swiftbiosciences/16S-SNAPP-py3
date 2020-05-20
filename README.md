@@ -1,9 +1,9 @@
-﻿16S SNAP-APP is an analysis workflow to be run on Linux/Mac command line
+﻿16S SNAPP is an analysis workflow to be run on Linux/Mac command line
 interface (CLI) for 16S amplicon sequences from Swift 16S panel. It
 generates taxonomic composition tables at and above genus ranks from multiple
 demultiplexed fastq files.
 
-16S SNAP-APP's approach is to associate sequence reads derived from multiple
+16S SNAPP's approach is to associate sequence reads derived from multiple
 amplicon regions to their most probable sequences of origin, i.e. the assumed
 templates. This is done through database search (blastn) for high identity
 matches among reference sequences followd by intersecting aligned reads on the
@@ -25,7 +25,7 @@ Setup:
       FASTTREE (http://www.microbesonline.org/fasttree/)
    3. Create a folder , e.g. 'DB', and download to it the reference and primer 
       files from (https://ws.onehub.com/files/ciwzfsrk).
-   4. Clone this repository (git clone https://github.com/swiftbiosciences/snapp.git)
+   4. Clone this repository (git clone https://github.com/swiftbiosciences/16S-SNAPP.git)
    5. Edit “config.txt” to enter absolute paths to tools, 'DB' and primer file, 
       and the expected single read length after primer is trimmed
 
@@ -48,7 +48,7 @@ Limitations:
    features and classified directly.
 2. The resolution of taxonomic assignments depends on the classifier, mainly its
    taxonomic coverage of the samples, and the sequencing depth. The current
-   version of 16S SNAP-APP uses RDP Classifier, but is potentially compatible with 
+   version of 16S SNAPP uses RDP Classifier, but is potentially compatible with 
    other k-mer's based classifier.
 3. The phylogenetic tree is built from the sequence alignment of the assumed
    template sequences to approximate the phylogeny of multiple amplicons that
