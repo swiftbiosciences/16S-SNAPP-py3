@@ -58,5 +58,5 @@ Limitations:
    inherently lack comparable alignment positions.
 
 Additional notes:
-   More trimming/filtering/denoising may be added as needed for specific data
-   sets to improve the performance of the analysis.
+   Quality trimming/filtering/denoising may be adjusted in run_dada2.R script
+   as needed for specific data sets to improve the performance of the analysis.
