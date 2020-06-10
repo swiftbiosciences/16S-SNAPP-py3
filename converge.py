@@ -180,7 +180,7 @@ def converge(sample_id): #converge each sample calculating all required attribut
         logfile.write('    Percentage of mapped unique ASVs in ' + sample_id + \
                       ': ' + str(round(mapped_ASV_count/float(sample_read_count)*100, 2)) + '\n')
 
-    consensus_seqs = load_consensus(refset, pe_seq_dict, WD)
+    consensus_seqs = load_consensus(sample_id, refset, pe_seq_dict, WD)
     seq_name = os.path.join(WD, sample_id + '_consensus.fasta')
     with open(seq_name, 'w') as conseq: #write consensus seqs to a file
         conseq.write(consensus_seqs)

@@ -3,11 +3,13 @@
 ## Author Benli Chai & Sukhinder Sandhu 20200502
 
 import os
+import time
 import string
 import concurrent.futures
 import alignment_parser
+RDPHOME = os.environ['RDPHOME']
 
-def align_seqs(refseq, pe_seq_dict, WD):
+def align_seqs(refseq, pe_seq_dict, tmp_dir):
     read_ids = refseq.reads.keys()
     read_ids.sort()
     read_seqs = [pe_seq_dict[read_id] for read_id in read_ids]
@@ -18,29 +20,29 @@ def align_seqs(refseq, pe_seq_dict, WD):
         read_count_list.append(refseq.count[read_id])
     template_id = refseq.ID
     template_seq = refseq.seq
-    read_filename = os.path.join(WD , template_id + '_reads.fasta')
-    template_filename = os.path.join(WD, template_id + '_temp.fasta')
+    read_filename = os.path.join(tmp_dir , template_id + '_reads.fasta')
+    template_filename = os.path.join(tmp_dir, template_id + '_temp.fasta')
 
     #write the read sequences to a fasta file
-    with open(read_filename, 'w') as out:
-        for i in range(len(read_ids)):
-            r1_seq, r2_seq = read_seqs[i].split('N'*10)
+    out1 = open(read_filename, 'w')
+    for i in range(len(read_ids)):
+        r1_seq, r2_seq = read_seqs[i].split('N'*10)
 
-            #The PE reads have to be aligned separately
-            out.write('>' + read_ids[i] + '_R1' + '\n' + r1_seq + '\n')
-            out.write('>' + read_ids[i] + '_R2' + '\n' + r2_seq + '\n')
+        #The PE reads have to be aligned separately
+        out1.write('>' + read_ids[i] + '_R1' + '\n' + r1_seq + '\n')
+        out1.write('>' + read_ids[i] + '_R2' + '\n' + r2_seq + '\n')
+    out1.close()
+
     #write the template sequence to a fasta file
-    with open(template_filename, 'w') as out:
-        out.write('>' + template_id + '\n' + template_seq)
-
-    aligned = os.path.join(WD, template_id + '_rdpaligned.txt')
+    out2 = open(template_filename, 'w')
+    out2.write('>' + template_id + '\n' + template_seq)
+    out2.close()
 
     #Run alignment tool align each read to the template in glocal mode
     #collect alignment from stdout
-    aligned = os.popen('java -jar ~/RDPTools/AlignmentTools.jar pairwise-knn \
+    aligned = os.popen('java -jar RDPHOME/AlignmentTools.jar pairwise-knn \
                -k 1 READS TEMPLATE'.replace('READS', read_filename).\
-               replace('TEMPLATE', template_filename)).readlines()
-
+               replace('TEMPLATE', template_filename).replace('RDPHOME', RDPHOME)).readlines()
     return (aligned, read_count_list)
 
 def get_consensus(rdp_k1_alignment, count_list):
@@ -78,21 +80,24 @@ def get_consensus(rdp_k1_alignment, count_list):
             if not region == ''], 'N'*7)
     return consensus
 
-def consensus_loader(refseq, pe_seq_dict, WD):
-    alignment, count_series = align_seqs(refseq, pe_seq_dict, WD)
+def consensus_loader(refseq, pe_seq_dict, tmp_dir):
+    alignment, count_series = align_seqs(refseq, pe_seq_dict, tmp_dir)
     consensus = get_consensus(alignment, count_series)
     seq = '>' + refseq.ID + '\n' + consensus.strip().strip('N')
     #refseq.consensus = consensus #load consensus sequences
-    template_id = refseq.ID
-    tmp_file_prefix = os.path.join(WD, template_id)
-    os.system('rm %s*'%tmp_file_prefix) #remove the temperoray files
+    #template_id = refseq.ID
+    #tmp_file_prefix = os.path.join(WD, template_id)
+#    os.system('rm %s*'%tmp_file_prefix) #remove the temperoray files
     return seq
 
-def load_consensus(refset, pe_seq_dict, WD):
+def load_consensus(sample_id, refset, pe_seq_dict, wd):
     all_consensus = []
+    tmp_dir = os.path.join(wd, sample_id.split('_R1')[0])
+    os.system('mkdir %s'%tmp_dir)
     with concurrent.futures.ProcessPoolExecutor(max_workers=4) as executor:
-        results = [executor.submit(consensus_loader, refseq, pe_seq_dict, WD) \
+        results = [executor.submit(consensus_loader, refseq, pe_seq_dict, tmp_dir) \
                    for refseq in refset.values()]
         for f in concurrent.futures.as_completed(results):
             all_consensus.append(f.result())
+    os.system('rm -fr %s'%tmp_dir) #remove the tmp directory
     return string.join(all_consensus, '\n')
