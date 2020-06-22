@@ -225,9 +225,11 @@ rDF = pd.read_csv(count_table, sep = ',', header=0, index_col = 0)
 #Fetch tax assignments of all asv PEs prior to converging
 pe_lineage_dict = get_lineages(read_cls, 0.7)
 
-#sequence match results
-K1_dict = pd.read_pickle('asv_PE_K1.pkl')
 converge_start = timeit.default_timer()
+
+#run parallel processing on seqmatch
+seq_match_tmp = os.path.join(WD, 'asv_tmp')
+K1_dict=run_seqmatch(seq_match_tmp, WD)
 
 #Iterate over all samples to converge asv PEs; it's optional for parallel processing
 #with multiple processors if the resources including memory are available

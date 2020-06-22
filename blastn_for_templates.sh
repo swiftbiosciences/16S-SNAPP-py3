@@ -145,20 +145,8 @@ cat blastn_3.txt \
 #yank blastn results and create pickle dictionary file for each of all samples
 ${SCRIPTS}/pickle_blastn_by_sample.py asv_count.csv blastn_3_filtered.txt asv.uc
 
-#Find the top 1 closest (K1) sequence as the template for each ASV
-echo -e "\nRunning RDP Seqmatch with all asv PEs  against RDP11.5  ...\n    Starts: $(date)">>$log
-start=$(date +%s.%N)
-java -jar ${RDPHOME}/SequenceMatch.jar \
-    seqmatch \
-    -k 1 \
-    -s 0.9 \
-    -o asv_PE_K1.txt \
-    seqmatch/ \
-    asv_PE.fasta
-echo "    Ends: $(date)">>$log
-end=$(date +%s.%N)
-runtime=$(python -c "print(${end} - ${start})")
-echo "    Done RDP Seqmatch with all asv PEs against RDP11.5  Runtime: $runtime sec" >> $log
 
-#pickle the seqmatch K1 hits
-${SCRIPTS}/pickle_k1.py asv_PE_K1.txt
+#Split ASV file into multiple ones containing 500 sequences in each
+mkdir asv_tmp
+cat asv_PE.fasta | \
+    (cd asv_tmp; split -a 8 --additional-suffix=.fasta -l 1000)

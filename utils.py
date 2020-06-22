@@ -72,6 +72,34 @@ def build_tree(seqfile_name, WD, RESDIR): #make a phylogenetic tree from templat
                TREE'.replace('ALIGN',aligned).replace('TREE', tree))
     return 1
 
+def run_seqmatch(folder_name, WD): #run seqmatch of PE in parallel processing mode
+    import os
+    import concurrent.futures
+    #the split files names of pe_seq
+    fnames = [os.path.join(folder_name, f) for f in os.listdir(folder_name) if os.path.isfile(os.path.join(folder_name, f))]
+    #all_seq_matches = []
+    rs_dict = {} #all SequenceMatch results
+    with concurrent.futures.ProcessPoolExecutor(max_workers=4) as executor:
+        results = [executor.submit(seq_match, WD, fname) \
+                   for fname in fnames]
+        for f in concurrent.futures.as_completed(results):
+            #all_seq_matches.append(f.result())
+            rs_dict.update(f.result())
+    return rs_dict
+
+def seq_match(WD, QUERY):#function to run seqmatch
+    import os
+    DB = os.path.join(WD, 'seqmatch')
+    cmd = 'java -jar ${RDPHOME}/SequenceMatch.jar \
+    seqmatch -k 1 -s 0.9 DB QUERY'\
+    .replace('DB', DB).replace('QUERY', QUERY)
+    rs = os.popen(cmd).readlines()
+    rs_dict = {}
+    for line in rs[1:]:
+        asv_id, hit_id = line.strip().split('\t')[0:2]
+        rs_dict[asv_id] = hit_id
+    return rs_dict
+
 def read_seq(seqfile_name):
     import string
     seq_dict = {}
