@@ -3,6 +3,8 @@
 ## Author Benli Chai & Sukhinder Sandhu 20200502
 
 ## to parse the classifier results into a hash of counts keyed by lineage name
+import os
+
 def get_lineages(tax_filename, CONF):
     import string
     Hash = {}
@@ -10,6 +12,7 @@ def get_lineages(tax_filename, CONF):
     for row in lines:
         cols = row.strip().split('\t')
         ID = cols[0]
+        #ID = ID.split(';')[0]
         ID = ID.split(';')[0]
         levels = cols[2:]
         i = 0
@@ -44,8 +47,8 @@ def get_best_tax(ref_tax, read_taxs):#choose the better between reftax and readt
         top_lineage = ref_tax
     return  top_lineage  #the most resolved lineage
 
-def add_lineages(sample_id, tax_dict, refset):#refset pass through to add lineage information
-    ref_tax_file = sample_id + '.cls'
+def add_lineages(wd, sample_id, tax_dict, refset):#refset pass through to add lineage information
+    ref_tax_file = os.path.join(wd, sample_id + '.cls')
     ref_tax_hash = get_lineages(ref_tax_file, 0.7)
     for ref_id in refset.keys():
         read_ids = list(refset[ref_id].getReadIDs())

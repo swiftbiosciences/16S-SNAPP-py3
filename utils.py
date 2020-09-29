@@ -55,7 +55,6 @@ def classify_proxy(sample_id, RDPHOME, WD):
     #classfy the consensus sequences
     subprocess.check_call(['java' , '-jar',\
             os.path.join(RDPHOME, 'classifier.jar'), \
-            'classify',\
             '-f', 'fixrank', \
             '-o', os.path.join(WD, sample_id + '.cls'), \
             os.path.join(WD, sample_id + '_consensus.fasta')])
@@ -91,7 +90,7 @@ def seq_match(WD, QUERY):#function to run seqmatch
     import os
     DB = os.path.join(WD, 'seqmatch')
     cmd = 'java -jar ${RDPHOME}/SequenceMatch.jar \
-    seqmatch -k 1 -s 0.9 DB QUERY'\
+    seqmatch -k 1 -s 0.4 DB QUERY'\
     .replace('DB', DB).replace('QUERY', QUERY)
     rs = os.popen(cmd).readlines()
     rs_dict = {}

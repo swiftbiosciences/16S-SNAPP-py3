@@ -29,7 +29,7 @@ $BLASTN \
     -out blastn_1.txt \
     -outfmt "6 std qlen slen" \
     -perc_identity 97 \
-    -qcov_hsp_perc 0.97
+    -qcov_hsp_perc 97
 
 echo "    Ends: $(date)">>$log
 end=$(date +%s.%N)
@@ -132,7 +132,7 @@ $BLASTN \
     -out blastn_3.txt \
     -outfmt "6 std qlen slen" \
     -perc_identity 97 \
-    -qcov_hsp_perc 0.97
+    -qcov_hsp_perc 97
 echo "    Ends: $(date)">>$log
 end=$(date +%s.%N)
 runtime=$(python -c "print(${end} - ${start})")

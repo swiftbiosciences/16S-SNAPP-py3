@@ -30,7 +30,7 @@ def converge_ref(refset):
             ref2read_dict[ref_id] = read_ids
         if all_read_ids.issubset(coveredReads):
             break
-    ref2read_dict = remove_nonuniq_refs(ref2read_dict)
+    #ref2read_dict = remove_nonuniq_refs(ref2read_dict)
     selected = []
     for ref in refset:
         if ref.ID in ref2read_dict.keys():

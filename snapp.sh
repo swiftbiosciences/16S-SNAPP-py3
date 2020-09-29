@@ -101,7 +101,7 @@ echo "    DADA2 Runtime: $runtime sec" >> $log
 ##Classify asv PEs with RDP classifier
 echo -e "\nRunning RDP classifer...\n    Starts: $(date)">>$log
 start=$(date +%s.%N)
-java -Xmx1g -jar ${RDPHOME}/classifier.jar \
+java -Xmx4g -jar ${RDPHOME}/classifier.jar \
     -f fixrank \
     -o asv_PE.cls \
     asv_PE.fasta

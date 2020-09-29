@@ -106,6 +106,16 @@ def get_len_stats(sample_id, refset):
         logfile.write(length2 + '\n')
     return pd.Series(length_per_refseq).describe(), pd.Series(length_norm_readcount).describe()
 
+##cluster consensus and asv sequences from all samples and make an abundance table with taxonomic assignments
+def get_cluster_tbl(wd):
+    all_seqs = os.path.join(wd, 'consensus_asv.fasta')
+    os.system('cat %s/*_consensus.fasta > %s'%(wd, all_seqs))
+    uc = os.path.join(wd, 'all.uc')
+    reps = os.path.join(wd, 'reps.fasta')
+    cmd = 'vsearch --cluster_size %s --strand both \
+            --id 0.97 --uc %s --centroid %s'%(all_seqs, uc, reps)
+    os.system(cmd)
+
 def combine_lineage_count(sample_id, refset, unmapped_list):
     refseqs = refset.values()
     Hash = {} #to hold the feature counts collapsed by lineage
@@ -164,7 +174,7 @@ def converge(sample_id): #converge each sample calculating all required attribut
     sample_read_count = len(sample_count_series)
 
     #load previously pickled blastn results as a dictionary for this sample
-    blastn_pickle = 'pickle/' + sample_id + '.pkl'
+    blastn_pickle = os.path.join(WD, 'pickle/' + sample_id + '.pkl')
     blastn_match_dict = pd.read_pickle(blastn_pickle)
 
     #call assign_read_counts function to converge the asv PEs
@@ -185,7 +195,15 @@ def converge(sample_id): #converge each sample calculating all required attribut
     with open(seq_name, 'w') as conseq: #write consensus seqs to a file
         conseq.write(consensus_seqs)
     classify_proxy(sample_id, RDPHOME, WD) #classify consensus sequences
-    refset = add_lineages(sample_id, pe_lineage_dict, refset)#load the best assignment from asv_PEs and the proxies
+    refset = add_lineages(WD, sample_id, pe_lineage_dict, refset)#load the best assignment from asv_PEs and the proxies
+
+    #Append unmapped ASVs to the consensus sequence file with size information
+    with open(seq_name, 'a') as asv:
+        asv.write('\n')
+        for asv_id in unmapped_ASV_IDs:
+            size =  rDF.loc[asv_id , sample_id]
+            asv.write('>' + asv_id + ';sample_id=' + sample_id + ';size=%s'%size + '\n' + pe_seq_dict[asv_id] + '\n')
+
     get_len_stats(sample_id, refset) #alignment length distributions of mapped reads
     collapsed_series, \
     feat_count_series, \

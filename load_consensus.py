@@ -7,6 +7,7 @@ import time
 import string
 import concurrent.futures
 import alignment_parser
+import numpy as np
 RDPHOME = os.environ['RDPHOME']
 
 def align_seqs(refseq, pe_seq_dict, tmp_dir):
@@ -80,22 +81,19 @@ def get_consensus(rdp_k1_alignment, count_list):
             if not region == ''], 'N'*7)
     return consensus
 
-def consensus_loader(refseq, pe_seq_dict, tmp_dir):
+def consensus_loader(sample_id, refseq, pe_seq_dict, tmp_dir):
     alignment, count_series = align_seqs(refseq, pe_seq_dict, tmp_dir)
+    size = round(np.array(count_series).sum(), 3) # total read count of this consensus sequence
     consensus = get_consensus(alignment, count_series)
-    seq = '>' + refseq.ID + '\n' + consensus.strip().strip('N')
-    #refseq.consensus = consensus #load consensus sequences
-    #template_id = refseq.ID
-    #tmp_file_prefix = os.path.join(WD, template_id)
-#    os.system('rm %s*'%tmp_file_prefix) #remove the temperoray files
+    seq = '>' + refseq.ID + ';' + 'sample_id=' + sample_id + ';size=%s'%size + '\n' + consensus.strip().strip('N')
     return seq
 
 def load_consensus(sample_id, refset, pe_seq_dict, wd):
     all_consensus = []
     tmp_dir = os.path.join(wd, sample_id.split('_R1')[0])
     os.system('mkdir %s'%tmp_dir)
-    with concurrent.futures.ProcessPoolExecutor(max_workers=4) as executor:
-        results = [executor.submit(consensus_loader, refseq, pe_seq_dict, tmp_dir) \
+    with concurrent.futures.ProcessPoolExecutor(max_workers=8) as executor:
+        results = [executor.submit(consensus_loader, sample_id, refseq, pe_seq_dict, tmp_dir) \
                    for refseq in refset.values()]
         for f in concurrent.futures.as_completed(results):
             all_consensus.append(f.result())
