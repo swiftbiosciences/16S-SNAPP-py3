@@ -24,7 +24,7 @@ Setup:
       MAFFT (https://mafft.cbrc.jp/alignment/software/,
       FASTTREE (http://www.microbesonline.org/fasttree/)
    3. Create a folder , e.g. 'DB', and download to it the reference and primer 
-      files from (https://ws.onehub.com/files/npuruvqa).
+      files from (https://ws.onehub.com/folders/82s4teyk).
    4. Clone this repository (git clone https://github.com/swiftbiosciences/16S-SNAPP.git)
    5. Edit “config.txt” to enter absolute paths to tools, 'DB' and primer file, 
       and the expected single read length after primer is trimmed
