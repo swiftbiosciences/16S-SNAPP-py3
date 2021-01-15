@@ -68,8 +68,10 @@ def assign_read_counts(sampleID, readCounts, hits_info):
 
         # submit the dataframe and mask for allocating read counts by minimizing
         # the sum of variance of read counts across all reference mapped to this read
+        if readID == 'asv_221':
+            df_assigned.T.to_csv('asv_221.csv', sep=',')
         df_assigned = minimize_var(df_assigned.T, mask)
-
+        
         # update read count to the assigned. Do we need this step? Should assignments to the setset of DF be inplace?
         DF_assigned.update(df_assigned.T)
 
@@ -270,7 +272,10 @@ feature_abundance_table = pd.concat(feature_count_series_list, join = 'outer', \
         axis = 1, sort=False).fillna(0).round(2)
 feature_abundance_table.to_csv(os.path.join(RESDIR,'feature-table.tsv'), sep='\t')
 taxonomy_table = pd.concat(taxonomy_series_list, join = 'outer', axis = 1, sort=False)
-taxonomy_table.to_csv(os.path.join(RESDIR, 'taxonomy-table.tsv'), sep='\t')
+taxonomy_table = taxonomy_table.max(axis=1)
+taxonomy_table.index.name = 'feature'
+taxonomy_table.to_csv(os.path.join(RESDIR, 'taxonomy-table.tsv'), sep='\t',\
+                      header = ['lineage'])
 
 # make the reference tree using the template sequences
 templateIDs_all = taxonomy_table.index.to_list()
