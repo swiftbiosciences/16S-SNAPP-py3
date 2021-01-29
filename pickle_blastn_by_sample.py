@@ -3,6 +3,8 @@
 ## Author Benli Chai & Sukhinder Sandhu 20200502
 
 #extract blastn hits as the dictionary and save as pickle for later use
+## Ported to Python 3 on 20210106
+
 import sys
 import os
 import pandas as pd
@@ -32,36 +34,35 @@ def sliceSampleHits(Dict, IDs):#extract blast info for this sample
     return Hash
 
 def pickle_blastn(countTable, blastn, ucFile):
-    import string
     os.system('mkdir pickle')
     start_time = timeit.default_timer()
     rDF = pd.read_csv(countTable, sep = ',', header=0, index_col = 0)
     blastn_info, rc_list = blastn_parser.get_blastn_hits(blastn, ucFile)
-    print len(blastn_info)
+    print (len(blastn_info))
     blastn_info_time = timeit.default_timer()
-    print blastn_info_time - start_time, 'Dictionary time'
+    print (blastn_info_time - start_time, 'Dictionary time')
     for sampleID in rDF.columns:
         sample_time = timeit.default_timer()
         sample_count = rDF.loc[:, sampleID]
         sample_count = sample_count[sample_count > 0]#drop 0's count series of this sample_PE_IDs
         sample_PE_IDs = list(sample_count.index)
         sampleInfo = sliceSampleHits(blastn_info, sample_PE_IDs)
-        print len(sampleInfo)
+        print (len(sampleInfo))
         # print sampleInfo, 'sampleInfo'
         slice_time = timeit.default_timer()
-        print slice_time - sample_time, sampleID, 'slice_time'
+        print (slice_time - sample_time, sampleID, 'slice_time')
         derepInfo = derep_hitsets.getUniqSets(sampleInfo)
         f = open('pickle/' + sampleID + ".pkl", "wb")
         pickle.dump(derepInfo, f)
         derep_time = timeit.default_timer()
-        print len(derepInfo), 'derepInfo'
-        print derep_time - slice_time, sampleID, 'derep_time'
+        print (len(derepInfo), 'derepInfo')
+        print (derep_time - slice_time, sampleID, 'derep_time')
     with open('reverse_complement_IDs.txt', 'w') as out:
-        out.write(string.join(rc_list, '\n'))
-    print derep_time - start_time, 'total_time'
+        out.write("\n".join(rc_list))
+    print (derep_time - start_time, 'total_time')
 if __name__ == '__main__':
     if not len(sys.argv) == 4:
-        print 'pickle_blastn_by_sample.py asv_count.csv blastn asv.uc'
+        print ('pickle_blastn_by_sample.py asv_count.csv blastn asv.uc')
         sys.exit()
 
     table = sys.argv[1]

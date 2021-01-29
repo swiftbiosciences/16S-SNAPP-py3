@@ -4,7 +4,6 @@
 
 import os
 import time
-import string
 import concurrent.futures
 import alignment_parser
 import numpy as np
@@ -12,7 +11,8 @@ RDPHOME = os.environ['RDPHOME']
 
 def align_seqs(refseq, pe_seq_dict, tmp_dir):
     read_ids = refseq.reads.keys()
-    read_ids.sort()
+    #read_ids.sort() # changed as the next line for Python 3
+    read_ids = sorted(read_ids)
     read_seqs = [pe_seq_dict[read_id] for read_id in read_ids]
     read_count_list = []
     #read count for both R1 and R2 reads
@@ -74,11 +74,11 @@ def get_consensus(rdp_k1_alignment, count_list):
         ##the base that has the highest frequency
         base = pos_df.groupby('base').sum().idxmax()['count']
         consensus.append(str(base))
-    consensus = string.join(consensus, '')
+    consensus = ''.join(consensus)
 
     #Replace common gaps with a fixed length (7) of 'N's
-    consensus = string.join([region for region in consensus.split('-') \
-            if not region == ''], 'N'*7)
+    consensus = "NNNNNNN".join([region for region in consensus.split('-') \
+            if not region == ''])
     return consensus
 
 def consensus_loader(sample_id, refseq, pe_seq_dict, tmp_dir):
@@ -98,4 +98,4 @@ def load_consensus(sample_id, refset, pe_seq_dict, wd):
         for f in concurrent.futures.as_completed(results):
             all_consensus.append(f.result())
     os.system('rm -fr %s'%tmp_dir) #remove the tmp directory
-    return string.join(all_consensus, '\n')
+    return "\n".join(all_consensus)

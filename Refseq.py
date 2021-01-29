@@ -3,10 +3,11 @@
 ## Author Benli Chai & Sukhinder Sandhu 20200502
 
 #Class of templates to be used for consensus sequences
+## Ported to Python 3 on 20210106
+
 from operator import itemgetter
 from itertools import groupby
 import numpy as np
-import string
 
 class Refseq:
     def __init__(self, ID):
@@ -38,19 +39,6 @@ class Refseq:
                 self.positions.append(position)
         self.positions.sort()
 
-    def addPEread_bk(self, read_info_R1, read_info_R2):#add PE read info: two sets of positions
-        ID = read_info_R1['ID'].split('_R')[0]
-        s1, e1 = read_info_R1['pos']
-        s2, e2 = read_info_R2['pos']
-        positions = set(range(s1, e1)).union(set(range(s2, e2)))
-        positions = list(positions)
-        positions.sort()
-        self.reads[ID] = positions #mapped positions
-        for position in positions:
-            if not position in self.positions:
-                self.positions.append(position)
-        self.positions.sort()
-
     def getReadIDs(self):
         return set(self.reads.keys())
 
@@ -58,8 +46,12 @@ class Refseq:
     def addSeq(self, seq): #the full length sequence of reference
         self.seq = seq.upper()
 
-    def addRegs(self): #return continuously covered regions once the read mapping is complete
-        self.baseRegs = [map(itemgetter(1), g) for k, g in groupby(enumerate(self.positions), lambda (i,x):i-x)]
+    def addRegs(self): #this Python 3 version is slightly different from Python 2 version but has the same return, i.e. consecutively covered  regions once the read mapping is complete
+        self.baseRegs = []
+        for k, g in groupby(enumerate(self.positions), lambda x:x[0]-x[1]):
+            group = (map(itemgetter(1), g))
+            group = list(map(int, group))
+            self.baseRegs.append(group)
 
     def addReadCounts(self, DF): #add minimized read counts attributable to this reference of this sample
         readIDs = self.reads.keys()
@@ -90,7 +82,7 @@ class Refseq:
 
     def getProxy(self):#return the proxy sequence formed by concatenating all mapped regions
         proxy = [self.seq[reg[0]:reg[-1]] for reg in self.baseRegs]
-        return string.join(proxy, 'NNNNNNN')
+        return "NNNNNNN".join(proxy)
 
 if __name__ == '__main__':
     myref = Refseq(ID='r1', seq='GCAACTGGACTGGAA')
@@ -98,10 +90,10 @@ if __name__ == '__main__':
     myref.addReads(['asv8'])
     myref.addBases(set([4, 5, 9, 3, 10]))
     myref.addBases(set([4, 5, 40, 59, 10]))
-    print myref.ID
-    print myref.seq
-    print myref.readIDs
-    print myref.getCount()
-    print myref.bases
-    print myref.getBaseCov()
-    print myref.getRegs()
+    print (myref.ID)
+    print (myref.seq)
+    print (myref.readIDs)
+    print (myref.getCount())
+    print (myref.bases)
+    print (myref.getBaseCov())
+    print (myref.getRegs())

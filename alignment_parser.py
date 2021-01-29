@@ -57,4 +57,4 @@ def get_align_array(alignment_lines):
 #return seq_base_df
 if __name__ == '__main__':
     array = get_align_array(sys.argv[1])
-    print array
+    print (array)

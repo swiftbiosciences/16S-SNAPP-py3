@@ -3,10 +3,10 @@
 ## Author Benli Chai & Sukhinder Sandhu 20200502
 
 #Take the blast results and coverge reads to their likely templates
+## Ported to Python 3 on 20210108
 
 import sys
 import os
-import string
 import pandas as pd
 from blastn_parser import *
 from utils import *
@@ -19,7 +19,7 @@ import timeit
 #Process each sample separately: each sample is represented by a read (row)-
 #refence (column) count dataframe
 def assign_read_counts(sampleID, readCounts, hits_info):
-    print 'Allocating multi-mapped read counts for sample', sampleID
+    print ('Allocating multi-mapped read counts for sample', sampleID)
     print ('Total mapped references:', len(hits_info))
     refSet_start_time = timeit.default_timer()
 
@@ -27,7 +27,7 @@ def assign_read_counts(sampleID, readCounts, hits_info):
     refset, refseq_PE_list = initiate_refset(hits_info)
     print ('Pre-reduction refset size:', len(refset))
     print ('Number of matched PEs:', len(refseq_PE_list))
-    print sampleID, 'refset total time', timeit.default_timer() - refSet_start_time
+    print (sampleID, 'refset total time', timeit.default_timer() - refSet_start_time)
 
     ##2. Converge the refset to a much smaller set containing the greatest gene 
     ##   coverage and account for reference-mapped read counts
@@ -38,12 +38,12 @@ def assign_read_counts(sampleID, readCounts, hits_info):
     DF = get_ref_read_df(refset, readCounts).fillna(0)
 
     ##4. Sort row (reads) of DF by the nonzero read (max in this case) count of each rows
-    DF = DF.ix[DF.max(axis=1).sort_values(ascending=True).index,:]
-    ##do we really need this step???
+    #DF = DF.ix[DF.max(axis=1).sort_values(ascending=True).index,:] #changed to next line for Python 3
+    DF = DF.loc[DF.max(axis=1).sort_values(ascending=True).index,:]
 
     ##5. Make a deep copy of this DF to hold assigned read counts for this sample
     DF_assigned = DF.copy(deep=True)
-    print 'The sample ASV-reference dataframe', DF.shape
+    print ('The sample ASV-reference dataframe', DF.shape)
 
     ##6. slice a subset (rows) where each read is mapped to more than one reference
     readIDs_tbd = DF.loc[(DF.astype(bool).sum(axis=1) > 1) , :].index
@@ -51,7 +51,7 @@ def assign_read_counts(sampleID, readCounts, hits_info):
     ##7. Set all multi-mapped ref-read count to small number 0.001 They will be filled later with
     #the optimized values through minimization
     DF_assigned.loc[(DF_assigned.astype(bool).sum(axis=1) > 1) , :] = 0.001
-    print 'There are:', len(readIDs_tbd), 'multi-mapped asv representatives'
+    print ('There are:', len(readIDs_tbd), 'multi-mapped asv representatives')
 
     ##8. Iterate each multi-mapped read to optimize its count allocation to each
     ##   mapped reference by minimizing the sum of variance across all references 
@@ -68,10 +68,8 @@ def assign_read_counts(sampleID, readCounts, hits_info):
 
         # submit the dataframe and mask for allocating read counts by minimizing
         # the sum of variance of read counts across all reference mapped to this read
-        if readID == 'asv_221':
-            df_assigned.T.to_csv('asv_221.csv', sep=',')
         df_assigned = minimize_var(df_assigned.T, mask)
-        
+
         # update read count to the assigned. Do we need this step? Should assignments to the setset of DF be inplace?
         DF_assigned.update(df_assigned.T)
 
@@ -81,7 +79,7 @@ def assign_read_counts(sampleID, readCounts, hits_info):
     ##10. Fetch refseq strings
     idList = os.path.join(WD, sampleID + '_idlist.txt')
     out = open(idList, 'w')
-    out.write(string.join(refset.keys(), '\n'))
+    out.write("\n".join(refset.keys()))
     out.close()
 
     seqFile = os.path.join(WD, sampleID + '_ref.fasta')
@@ -221,7 +219,7 @@ def converge(sample_id): #converge each sample calculating all required attribut
 ##main##
 if __name__ == '__main__':
     if not len(sys.argv) == 5:
-        print "coverge.py countTable.csv asv_PE.fasta asv_PE.cls log"
+        print ("coverge.py countTable.csv asv_PE.fasta asv_PE.cls log")
         sys.exit()
 
 start_time = timeit.default_timer()
@@ -272,7 +270,7 @@ feature_abundance_table = pd.concat(feature_count_series_list, join = 'outer', \
         axis = 1, sort=False).fillna(0).round(2)
 feature_abundance_table.to_csv(os.path.join(RESDIR,'feature-table.tsv'), sep='\t')
 taxonomy_table = pd.concat(taxonomy_series_list, join = 'outer', axis = 1, sort=False)
-taxonomy_table = taxonomy_table.max(axis=1)
+taxonomy_table = taxonomy_table.fillna('-').max(axis=1, numeric_only=False)
 taxonomy_table.index.name = 'feature'
 taxonomy_table.to_csv(os.path.join(RESDIR, 'taxonomy-table.tsv'), sep='\t',\
                       header = ['lineage'])
@@ -282,7 +280,7 @@ templateIDs_all = taxonomy_table.index.to_list()
 templateIDs_mapped = template_mapped_seqs_dict.keys()
 templateIDs_unmapped = set(templateIDs_all).difference(set(templateIDs_mapped))
 with open(os.path.join(WD, 'unmapped_templates.list'), 'w') as out:
-    out.write(string.join(templateIDs_unmapped, '\n'))
+    out.write("\n".join(templateIDs_unmapped))
     out.close()
 seqid_filename = os.path.join(WD, 'unmapped_templates.list')
 seq_filename = os.path.join(WD, 'templates.fasta')
@@ -295,7 +293,7 @@ with open(os.path.join(WD, 'templates.fasta'), 'a') as out:
 build_tree(seq_filename, WD, RESDIR)
 
 elapsed = timeit.default_timer() - converge_start
-print 'Total converge.py time: ', elapsed
+print ('Total converge.py time: ', elapsed)
 
 """
 #Multi-processing by process pooling. Use caution when apply this option
@@ -307,7 +305,7 @@ with concurrent.futures.ProcessPoolExecutor(max_workers=4) as executor:
 abundanceTable = pd.concat(all_completed, join = 'outer', axis = 1).fillna(0)
 abundanceTable.to_csv('feature-table.tsv', sep='\t')
 
-#print abundanceTable.head(3)
+#print (abundanceTable.head(3))
 elapsed = timeit.default_timer() - converge_start
-print 'total converge time', elapsed
+print ('total converge time', elapsed)
 """

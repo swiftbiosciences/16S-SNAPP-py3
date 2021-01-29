@@ -15,7 +15,7 @@ Setup:
    1. Install and setup the following software:
       R (https://www.r-project.org/),
       Java ≥1.8.0_131,
-      Python 2.7 (with Numpy ≥1.16.2, Pandas ≥0.24.2, Scipy ≥1.2.1),
+      Python 3.6.8 or later (with Numpy ≥ 1.16.0, Pandas ≥ 1.1.4, Scipy ≥1.4.1),
       DADA2 (https://benjjneb.github.io/dada2/),
       BLAST (ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/),
       RDPTools (github.com/rdpstaff/RDPTools),

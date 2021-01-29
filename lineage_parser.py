@@ -3,16 +3,17 @@
 ## Author Benli Chai & Sukhinder Sandhu 20200502
 
 ## to parse the classifier results into a hash of counts keyed by lineage name
+
+## Ported to Python 3 on 20210106
+
 import os
 
 def get_lineages(tax_filename, CONF):
-    import string
     Hash = {}
     lines = open(tax_filename.strip(), 'r').readlines()
     for row in lines:
         cols = row.strip().split('\t')
         ID = cols[0]
-        #ID = ID.split(';')[0]
         ID = ID.split(';')[0]
         levels = cols[2:]
         i = 0
@@ -26,7 +27,7 @@ def get_lineages(tax_filename, CONF):
             else:
                 lineage.append(name.replace('"', ''))
             i += 3
-        lineage = string.join(lineage, ';').strip()
+        lineage = ";".join(lineage).strip()
         if lineage == '':#rare cases the sequence can't be classified to domain level
             lineage = 'Unclassified'
         Hash[ID] = lineage
@@ -40,7 +41,8 @@ def get_best_tax(ref_tax, read_taxs):#choose the better between reftax and readt
             taxs[level] = []
         taxs[level].append(tax)
     resolution = taxs.keys()
-    resolution.sort()
+    #resolution.sort() #changed to next line for Python 3
+    resolution = sorted(resolution)
     resolution.reverse()
     top_lineage= taxs[resolution[0]][0]
     if ref_tax.count(';') >= resolution[0]:

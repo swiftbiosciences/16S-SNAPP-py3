@@ -3,6 +3,8 @@
 ## Author Benli Chai & Sukhinder Sandhu 20200502
 
 # to obtain a ref-read dataframe with count value for each sample
+## Ported to Python 3 on 20210106
+
 def get_ref_read_df(refset, count_table): #to obtain a ref-read dataframe with count value for each sample
     import pandas as pd
     id_dict = {ref.ID:{} for ref in refset}
@@ -24,13 +26,12 @@ def fetch_refseq(RDPHOME, id_file_name, outfile_name, reffile_name):
     return 1
 
 def update_refseq(DF, reffile_name, refset):#add additional attributes to the refseq objects
-    import string
     recs = open(reffile_name, 'r').read().strip('>').split('\n>')
     #Iterate all refseq objects for multiple tasks
     for rec in recs:
         lines = rec.split('\n')
         ID = lines[0].split()[0]
-        seq = string.join(lines[1:], '').replace(' ', '')
+        seq = "".join(lines[1:]).replace(' ', '')
         refset[ID].addSeq(seq)
         refset[ID].addReadCounts(DF)
         refset[ID].addRegs()
@@ -100,13 +101,12 @@ def seq_match(WD, QUERY):#function to run seqmatch
     return rs_dict
 
 def read_seq(seqfile_name):
-    import string
     seq_dict = {}
     recs = open(seqfile_name, 'r').read().strip('>').split('\n>')
     for rec in recs:
         lines = rec.split('\n')
         ID = lines[0].split()[0]
-        seq = string.join(lines[1:], '').replace(' ' , '')
+        seq = "".join(lines[1:]).replace(' ' , '')
         seq_dict[ID] = seq
     return seq_dict
 

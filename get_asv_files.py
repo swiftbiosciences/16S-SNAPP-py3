@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 ## Swift Biosciences 16S snapp workflow
-## Author Benli Chai & Sukhinder Sandhu 20200502
+## Author Benli Chai & Sukhinder Sandhu 20210106
+## Ported to Python 3
 
 import sys
-import string
 
 #extract ASV sequences to a fasta file and replace the sequence strings with IDs
 def split_asv_count(tbl, prefix):
@@ -12,10 +12,11 @@ def split_asv_count(tbl, prefix):
     single = open(prefix + '_seq.fasta', 'w')
     pair = open(prefix + '_PE.fasta', 'w')
     count = 0
-    tblout.write(f.next().replace('"', ''))
+    #tblout.write(f.next().replace('"', ''))
+    tblout.write(next(f).replace('"', ''))
     while 1:
         try:
-            line = f.next()
+            line = next(f)
             count += 1
             cols = line.strip().split(',')
             PE = cols[0].replace('"', '')
@@ -30,9 +31,10 @@ def split_asv_count(tbl, prefix):
                 fasta = '>' + ID + '\n' + PE
                 pair.write(fasta + '\n')
                 cols[0] = ID
-                tblout.write(string.join(cols, ',') + '\n')
+                #tblout.write(string.join(cols, ',') + '\n')
+                tblout.write(','.join(cols) + '\n')
             else:
-                print 'error'
+                print ('error')
                 sys.exit()
 
         except StopIteration:
@@ -43,7 +45,7 @@ def split_asv_count(tbl, prefix):
 
 if __name__ == '__main__':
     if len(sys.argv) != 3:
-        print 'get_asv_files.py asvTable outprefix'
+        print ('get_asv_files.py asvTable outprefix')
         sys.exit()
     asvTable = sys.argv[1]
     outprefix = sys.argv[2]

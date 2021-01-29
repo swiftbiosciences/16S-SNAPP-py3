@@ -3,6 +3,8 @@
 ## Author Benli Chai & Sukhinder Sandhu 20200502
 
 #dereplicate reference hits by their matching read id set
+## Ported to Python 3 on 20210106
+
 def derep_refset(refset):
     uniq_read_sets = []
     dereped = []
@@ -30,7 +32,7 @@ def converge_ref(refset):
             ref2read_dict[ref_id] = read_ids
         if all_read_ids.issubset(coveredReads):
             break
-    #ref2read_dict = remove_nonuniq_refs(ref2read_dict)
+
     selected = []
     for ref in refset:
         if ref.ID in ref2read_dict.keys():
@@ -64,7 +66,7 @@ def get_blastn_hits(blastn, uc_filename):
     rc_set = set([]) #PEs in reverse-complement orientation with respect to the reference sequences (presumed to be in the positive orientation)
     while 1:
         try:
-            line = f.next()
+            line = next(f)
             cols = line.strip().split('\t')
             qid = cols[0]
             asv_ids = rep2asv[qid] #the actual asv_ids represented by this rep ID
@@ -93,7 +95,7 @@ def get_id_dict(uc_filename):
     f = open(uc_filename, 'r')
     while 1:
         try:
-            line = f.next()
+            line = next(f)
             cols = line.strip().split('\t')
             if not cols[0] == 'C':
                 cols = line.strip().split('\t')
