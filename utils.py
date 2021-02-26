@@ -54,7 +54,15 @@ def classify_proxy(sample_id, RDPHOME, WD):
     import subprocess
     import os
     #classfy the consensus sequences
-    subprocess.check_call(['java' , '-jar',\
+    try:
+        train_set = os.environ['RDP_CLASSIFIER'] #use the specified training set
+        subprocess.check_call(['java' , '-jar',\
+            os.path.join(RDPHOME, 'classifier.jar'), \
+            '-t', train_set, \
+            '-o', os.path.join(WD, sample_id + '.cls'), \
+            os.path.join(WD, sample_id + '_consensus.fasta')])
+    except KeyError: #use default training set
+        subprocess.check_call(['java' , '-jar',\
             os.path.join(RDPHOME, 'classifier.jar'), \
             '-f', 'fixrank', \
             '-o', os.path.join(WD, sample_id + '.cls'), \

@@ -11,6 +11,7 @@ export BLASTN=path-to/blastn
 ## database paths
 export RDP_FULL_BLAST=path-to/rdp11_5_blastDB
 export RDP_FULL_SEQ=path-to/DB/rdp11_5.fasta
+#export RDP_CLASSIFIER=/path-to/rRNAClassifier.properties #path to custom trained RDP Classifier
 
 ## primers and other settings
 PRIMERS=path-to/Swift_16S_SNAP_primers.fasta #primer file formatted paired-end primer trimming

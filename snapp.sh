@@ -18,6 +18,7 @@ fi
 set -e
 set -x
 
+export SCRIPTS=$(dirname $(readlink -f $0)) #the path to scripts
 source $1 #load config.txt
 echo `cat ${1}`
 INPUTDIR=$(readlink -f $2) # the absolute dir where the fastq.gz file are located
@@ -101,10 +102,18 @@ echo "    DADA2 Runtime: $runtime sec" >> $log
 ##Classify asv PEs with RDP classifier
 echo -e "\nRunning RDP classifer...\n    Starts: $(date)">>$log
 start=$(date +%s.%N)
-java -Xmx4g -jar ${RDPHOME}/classifier.jar \
-    -f fixrank \
-    -o asv_PE.cls \
-    asv_PE.fasta
+if [[ -z $RDP_CLASSIFIER ]]
+then
+    java -Xmx4g -jar ${RDPHOME}/classifier.jar \
+        -f fixrank \
+        -o asv_PE.cls \
+        asv_PE.fasta
+else
+    java -Xmx4g -jar ${RDPHOME}/classifier.jar \
+        -t $RDP_CLASSIFIER \
+        -o asv_PE.cls \
+        asv_PE.fasta
+fi
 
 end=$(date +%s.%N)
 runtime=$(python -c "print(${end} - ${start})")
