@@ -149,4 +149,5 @@ ${SCRIPTS}/pickle_blastn_by_sample.py asv_count.csv blastn_3_filtered.txt asv.uc
 #Split ASV file into multiple ones containing 500 sequences in each
 mkdir asv_tmp
 cat asv_PE.fasta | \
-    (cd asv_tmp; split -a 8 --additional-suffix=.fasta -l 1000)
+    (cd asv_tmp; split -a 8 -l 1000)
+    #(cd asv_tmp; split -a 8 --additional-suffix=.fasta -l 1000)
