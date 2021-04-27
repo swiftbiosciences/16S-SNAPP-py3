@@ -125,13 +125,14 @@ def combine_lineage_count(sample_id, refset, unmapped_list):
     feature_template_seqs_dict = {} # the template sequence strings
 
     #first fetch lineage-count from refseq objects
-    nameproxy = Name_proxy() #instantiate consensus naming object
+    #nameproxy = Name_proxy() #instantiate consensus naming object
     for refseq in refseqs:
         ID = refseq.ID
         lineage = refseq.tax.strip()
         count = refseq.getCountSum()
         template_seq = refseq.seq
-        template_id = nameproxy.get_assumed_id(ID) #use modified template ID to avoid redundancy with other samples
+        template_id = ID + ';sample_id=' + sample_id  #use modified template ID to avoid redundancy with other samples
+        #template_id = nameproxy.get_assumed_id(ID) #use modified template ID to avoid redundancy with other samples
         feature_counts_dict[template_id] = count
         feature_taxa_dict[template_id] = lineage
         feature_template_seqs_dict[template_id] = template_seq
@@ -255,12 +256,30 @@ lineage_count_series_list = []
 feature_count_series_list = []
 taxonomy_series_list = []
 template_mapped_seqs_dict = {} #template seqs for associated reads
-for sample_id in rDF.columns:
-    collapsed, featCounts, featTax, templates_mapped_seqs_dict_sample =  converge(sample_id)
-    lineage_count_series_list.append(collapsed)
-    feature_count_series_list.append(featCounts)
-    taxonomy_series_list.append(featTax)
-    template_mapped_seqs_dict.update(templates_mapped_seqs_dict_sample)
+
+###############################################################################################
+#Process one sample at a time                                                                 #
+#for sample_id in rDF.columns:                                                                #
+#    collapsed, featCounts, featTax, templates_mapped_seqs_dict_sample = \ converge(sample_id)#
+#    lineage_count_series_list.append(collapsed)                                              #
+#    feature_count_series_list.append(featCounts)                                             #
+#    taxonomy_series_list.append(featTax)                                                     #
+#    template_mapped_seqs_dict.update(templates_mapped_seqs_dict_sample)                      #
+###############################################################################################
+
+###############################################################################
+#Multi-processing by process pooling. Use caution when applying this option   #
+all_completed = [] #to collect abundance for each sample when it's completed  #
+with concurrent.futures.ProcessPoolExecutor(max_workers=4) as executor:       #
+    results = [executor.submit(converge, sample) for sample in rDF.columns]   #
+    for f in concurrent.futures.as_completed(results):                        #
+        all_completed.append(f.result())                                      #
+for sample_rs in all_completed:                                               #
+    lineage_count_series_list.append(sample_rs[0])                            #
+    feature_count_series_list.append(sample_rs[1])                            #
+    taxonomy_series_list.append(sample_rs[2])                                 #
+    template_mapped_seqs_dict.update(sample_rs[3]) #template seqs for assoc   #
+###############################################################################
 
 # Render the abundance and taxonomy tables
 lineage_abundance_table = pd.concat(lineage_count_series_list, join = 'outer',\
@@ -294,18 +313,3 @@ build_tree(seq_filename, WD, RESDIR)
 
 elapsed = timeit.default_timer() - converge_start
 print ('Total converge.py time: ', elapsed)
-
-"""
-#Multi-processing by process pooling. Use caution when apply this option
-all_completed = [] #to collect abundance for each sample when it's completed
-with concurrent.futures.ProcessPoolExecutor(max_workers=4) as executor:
-    results = [executor.submit(converge, sample) for sample in rDF.columns]
-    for f in concurrent.futures.as_completed(results):
-        all_completed.append(f.result())
-abundanceTable = pd.concat(all_completed, join = 'outer', axis = 1).fillna(0)
-abundanceTable.to_csv('feature-table.tsv', sep='\t')
-
-#print (abundanceTable.head(3))
-elapsed = timeit.default_timer() - converge_start
-print ('total converge time', elapsed)
-"""
