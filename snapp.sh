@@ -100,7 +100,7 @@ runtime=$(python -c "print(${end} - ${start})")
 echo "    DADA2 Runtime: $runtime sec" >> $log
 
 ##Classify asv PEs with RDP classifier
-echo -e "\nRunning RDP classifer...\n    Starts: $(date)">>$log
+echo -e "\nRunning RDP classifier...\n    Starts: $(date)">>$log
 start=$(date +%s.%N)
 if [[ -z $RDP_CLASSIFIER ]]
 then
@@ -145,9 +145,42 @@ ${SCRIPTS}/converge.py \
         asv_PE.cls \
         $log
 
+end=$(date +%s.%N)
+runtime=$(python -c "print(${end} - ${start})")
+echo "    Converging Runtime: $runtime sec" >> $log
+echo "\n" >> $log
+
+##Cluster all sequences in consensus files using kmer in R
+start=$(date +%s.%N)
+cat *consensus.fasta > all_cons.fasta
+${SCRIPTS}/sum_count.py . all
+
+$VSEARCH --sortbysize all_cons.fasta --output all_cons_sorted.fasta
+
+mv all_cons_sorted.fasta all_cons.fasta
+
+[ ! -d "tmp" ] && echo "create tmp diretory" && mkdir tmp
+
+#split the sorted fasta file into smaller ones for running minimap2 alignment
+${SCRIPTS}/splitFasta.py all_cons.fasta 10000 tmp
+for fas in tmp/*.fas; do
+    prefix=${fas%.fas}
+    prefix=${prefix##*/all_cons_}
+    minimap2 -a --eqx -o tmp/${prefix}.sam all_cons.fasta ${fas}
+done
+
+cat tmp/*.sam | grep -v "^@" > all_cons.sam
+cutoff=0.03
+${SCRIPTS}/parse_minimap2_clr.py all_cons.sam all_cons.clr $cutoff
+${SCRIPTS}/get_OTU_table.py . all_cons.fasta all_cons.clr OTUs
+
 END=$(date +%s.%N)
 runtime=$(python -c "print(${END} - ${start})")
-echo "    Converging Runtime: $runtime sec" >> $log
+echo "    Clustering time: $runtime sec" >> $log
+echo "\n" >> $log
 echo "\n" >> $log
 runtime=$(python -c "print(${END} - ${START})")
 echo -e "\nWhole process completed in: $runtime sec">>$log
+
+#clean up
+rm -rf tmp
