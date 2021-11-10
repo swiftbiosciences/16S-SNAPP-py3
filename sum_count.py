@@ -43,7 +43,8 @@ def combine_consensus(f, sample_name):
         SID, sample_name, size = ID.split(';')
         sample_name = sample_name.split('=')[1]
         newid, size = integer_size(ID)
-        if ID.find('S00') != -1: #consensuse sequences
+        #if ID.find('S00') != -1: #consensuse sequences
+        if not ID.find('asv') != -1: #consensuse sequences
             consensus_out.write('>' + newid + '\n' + seq + '\n')#output the consensus sequences with integer size
         count_table[sample_name][newid] = int(size)
     return 1

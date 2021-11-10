@@ -23,6 +23,7 @@ Setup:
       VSEARCH (https://github.com/torognes/vsearch),
       MAFFT (https://mafft.cbrc.jp/alignment/software/,
       FASTTREE (http://www.microbesonline.org/fasttree/)
+      minimap2 2.20-r1061 (https://github.com/lh3/minimap2)
    3. Create a folder , e.g. 'DB', and download to it the reference and primer 
       files from (https://ws.onehub.com/folders/82s4teyk).
    4. Clone this repository (git clone https://github.com/swiftbiosciences/16S-SNAPP-py3)
@@ -41,7 +42,10 @@ Command to run: snapp.sh config.txt inputdir workdir
           lineage-table.tsv,
           feature-table.tsv,
           taxonomy-table.tsv,
-          templates_mafft.tree
+          templates_mafft.tree (experimental)
+          OTU_count.txt (experimental)
+          OTU_taxonomy.txt (experimental)
+
 
 Limitations:
 1. The workflow largely relies on aligning reads from different gene regions
@@ -51,11 +55,15 @@ Limitations:
    features and classified directly.
 2. The resolution of taxonomic assignments depends on the classifier, mainly its
    taxonomic coverage of the samples, and the sequencing depth. The current
-   version of 16S SNAPP uses RDP Classifier, but is potentially compatible with 
+   version of 16S SNAPP uses RDP Classifier, but is potentially compatible with
    other k-mer's based classifier.
 3. The phylogenetic tree is built from the sequence alignment of the assumed
    template sequences to approximate the phylogeny of multiple amplicons that
    inherently lack comparable alignment positions.
+4. OTU table ('OTU_count.txt' paired with 'OTU_taxonomy.txt' file) is generated
+   by combinig unmapped ASVs and consensus sequences clustered after pairwise
+   alignments using minimap2. It is an attempt to consolidate features
+   represented by consensus sequences for better resolutions in sample comparisons.
 
 Additional notes:
    Quality trimming/filtering/denoising may be adjusted in run_dada2.R script
