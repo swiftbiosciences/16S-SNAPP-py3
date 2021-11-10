@@ -4,7 +4,6 @@
 CUTADAPT=/usr/local/bin/cutadapt
 VSEARCH=/usr/local/bin/vsearch
 export RDPHOME=/tools/RDPTools #the directory where classifier.jar lives
-export SCRIPTS=/tools/16S-SNAPP
 export MAKEBLASTDB=/usr/local/bin/makeblastdb
 export BLASTN=/usr/local/bin/blastn
 

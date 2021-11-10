@@ -4,7 +4,6 @@
 CUTADAPT=path-to/cutadapt
 VSEARCH=path-to/vsearch
 export RDPHOME=path-to/RDPTools #the directory where classifier.jar lives
-export SCRIPTS=path-to/scriptfolder
 export MAKEBLASTDB=path-to/makeblastdb
 export BLASTN=path-to/blastn
 
