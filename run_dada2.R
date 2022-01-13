@@ -7,7 +7,7 @@
 
 args <- commandArgs(TRUE)
 if (length(args) != 3){
-    stop("Usage: runDEseq.R inputDir workDir trimLength");
+    stop("Usage: run_dada2.R inputDir workDir trimLength");
 }
 
 library(dada2)
