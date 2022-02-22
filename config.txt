@@ -8,8 +8,8 @@ export MAKEBLASTDB=path-to/makeblastdb
 export BLASTN=path-to/blastn
 
 ## database paths
-export RDP_FULL_BLAST=path-to/rdp11_5_blastDB
-export RDP_FULL_SEQ=path-to/DB/rdp11_5.fasta
+export RDP_FULL_BLAST=/path-to/DB/rdp11_5
+export RDP_FULL_SEQ=/path-to/DB/rdp11_5.fasta
 #export RDP_CLASSIFIER=/path-to/rRNAClassifier.properties #path to custom trained RDP Classifier
 
 ## primers and other settings
