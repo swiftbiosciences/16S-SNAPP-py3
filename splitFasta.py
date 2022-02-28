@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #Used to split fasta file into multiple small files of specified size
 
 import sys
