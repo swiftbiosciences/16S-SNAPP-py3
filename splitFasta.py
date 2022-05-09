@@ -4,7 +4,7 @@
 import sys
 import os
 if len(sys.argv) != 4:
-    print 'Usage: $splitFasta.py fastaFile numberSeqInEach outdir'
+    print ('Usage: $splitFasta.py fastaFile numberSeqInEach outdir')
     sys.exit()
 
 f = open(sys.argv[1], 'r')
