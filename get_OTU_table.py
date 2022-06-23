@@ -26,7 +26,7 @@ fasta = sys.argv[2] #abundance sorted concensus fasta file
 clr = sys.argv[3] #cluster file in RDPTools format
 outname = sys.argv[4] #name prefix
 RESDIR = os.environ['RESDIR']
-outname = os.path.join(wd, RESDIR, outname)
+outname = os.path.join(RESDIR, outname)
 
 count_table = {}
 idmap = get_idmap(fasta)
