@@ -18,7 +18,6 @@ def align_seqs(refseq, pe_seq_dict, tmp_dir):
     #read count for both R1 and R2 reads
     for read_id in read_ids:
         read_count_list.append(refseq.count[read_id])
-        read_count_list.append(refseq.count[read_id])
     template_id = refseq.ID
     template_seq = refseq.seq
     read_filename = os.path.join(tmp_dir , template_id + '_reads.fasta')
