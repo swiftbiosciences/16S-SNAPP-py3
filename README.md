@@ -25,7 +25,7 @@ Setup:
       FASTTREE (http://www.microbesonline.org/fasttree/)
       minimap2 2.20-r1061 (https://github.com/lh3/minimap2)
    3. Create a folder , e.g. 'DB', and download to it the reference and primer 
-      files from (https://ws.onehub.com/folders/82s4teyk).
+      files from (https://danaherlifesciences.box.com/s/fkojslg8t0xnksvyd6vwp2gsfdacmi5p).
    4. Clone this repository (git clone https://github.com/swiftbiosciences/16S-SNAPP-py3)
    5. Edit “config.txt” to enter absolute paths to tools, 'DB' and primer file, 
       and the expected single read length after primer is trimmed
